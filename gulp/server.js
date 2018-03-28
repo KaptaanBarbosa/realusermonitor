@@ -3,6 +3,7 @@
 var path = require('path');
 var gulp = require('gulp');
 var conf = require('./conf');
+var connect = require('gulp-connect');
 
 var browserSync = require('browser-sync');
 var browserSyncSpa = require('browser-sync-spa');
@@ -35,12 +36,19 @@ function browserSyncInit(baseDir, browser) {
    */
   // server.middleware = proxyMiddleware('/users', {target: 'http://jsonplaceholder.typicode.com', changeOrigin: true});
 
-  browserSync.instance = browserSync.init({
-    startPath: '/',
-    server: server,
-    browser: browser,
-    ghostMode: false
-  });
+//   browserSync.instance = browserSync.init({
+//     startPath: '/',
+//     server: server,
+//     browser: browser,
+//     ghostMode: false
+//   });
+  
+  connect.server({
+        root: conf.paths.dist,
+        port: 3000,
+        debug: true,
+        livereload: true
+    });
 }
 
 browserSync.use(browserSyncSpa({
