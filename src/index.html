@@ -74,33 +74,100 @@
 <!-- angular templates will be automatically converted in js and inserted here -->
 <!-- endinject -->
 <!-- endbuild -->
-<script type="text/javascript" src="app/plugins/boomerang/boomerang.js"></script>
-<script type="text/javascript" src="app/plugins/boomerang/plugins/bw.js"></script>
-<script type="text/javascript" src="app/plugins/boomerang/plugins/angular.js"></script>
-<script type="text/javascript" src="app/plugins/boomerang/plugins/rt.js"></script>
-<script type="text/javascript" src="app/plugins/boomerang/plugins/auto_xhr.js"></script>
-<script type="text/javascript" src="app/plugins/boomerang/plugins/cache_reload.js"></script>
-<script type="text/javascript" src="app/plugins/boomerang/plugins/clicks.js"></script>
-<script type="text/javascript" src="app/plugins/boomerang/plugins/dns.js"></script>
-<script type="text/javascript" src="app/plugins/boomerang/plugins/GUID.js"></script>
-<script type="text/javascript" src="app/plugins/boomerang/plugins/ipv6.js"></script>
-<script type="text/javascript" src="app/plugins/boomerang/plugins/memory.js"></script>
-<script type="text/javascript" src="app/plugins/boomerang/plugins/plugin.js"></script>
-<script type="text/javascript" src="app/plugins/boomerang/plugins/restiming.js"></script>
-<script type="text/javascript" src="app/plugins/boomerang/plugins/zzz_last_plugin.js"></script>
 
 <script lang="text/javascript">
+window.BOOMR_config = window.BOOMR_config || {};
+BOOMR_config.autorun = false;
+BOOMR_config.Angular = {
+    enabled: true
+};
 
-    BOOMR.init(
-        {
-            beacon_url: "users/test",
-            BW: {
-                base_url: "images/",
-                block_beacon: true
-            }
-        }
-    );
+BOOMR.init({
 
+History: {
+enabled: true,
+},
+autorun: true,
+instrument_xhr: false,
+RT: {
+cookie: "MyRT",
+cookie_exp: 120
+},
+		user_ip: "<user's ip address>",
+
+beacon_url: "https://nodejs-for-react-indhusiva.c9users.io:8081/beacon"
+});
+
+
+// create an observer instance
+var observer = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      calculate_load_times();
+
+    });
+});
+
+// configuration of the observer:
+var config = {
+    attributes: true,
+    childList: true,
+    characterData: true
+};
+var target =  document.querySelector('body');
+// pass in the target node, as well as the observer options
+observer.observe(target, config);
+   
+function calculate_load_times() {
+  // Check performance support
+  if (performance === undefined) {
+    console.log("= Calculate Load Times: performance NOT supported");
+    return;
+  }
+
+  // Get a list of "resource" performance entries
+  var resourcetiming = {}
+  var resources = performance.getEntriesByType("resource");
+  if (resources === undefined || resources.length <= 0) {
+    console.log("= Calculate Load Times: there are NO `resource` performance records");
+    return;
+  }
+
+  console.log("= Calculate Load Times");
+  for (var i=0; i < resources.length; i++) {
+    console.log("== Resource[" + i + "] - " + resources[i].name);
+    // Redirect time
+    var t = resources[i].redirectEnd - resources[i].redirectStart;
+    console.log("... Redirect time = " + t);
+
+    // DNS time
+    t = resources[i].domainLookupEnd - resources[i].domainLookupStart;
+    console.log("... DNS lookup time = " + t);
+
+    // TCP handshake time
+    t = resources[i].connectEnd - resources[i].connectStart;
+    console.log("... TCP time = " + t);
+
+    // Secure connection time
+    t = (resources[i].secureConnectionStart > 0) ? (resources[i].connectEnd - resources[i].secureConnectionStart) : "0";
+    console.log("... Secure connection time = " + t);
+
+    // Response time
+    t = resources[i].responseEnd - resources[i].responseStart;
+    console.log("... Response time = " + t);
+
+    // Fetch until response end
+    t = (resources[i].fetchStart > 0) ? (resources[i].responseEnd - resources[i].fetchStart) : "0";
+    console.log("... Fetch until response end time = " + t);
+
+    // Request start until reponse end
+    t = (resources[i].requestStart > 0) ? (resources[i].responseEnd - resources[i].requestStart) : "0";
+    console.log("... Request start until response end time = " + t);
+
+    // Start until reponse end
+    t = (resources[i].startTime > 0) ? (resources[i].responseEnd - resources[i].startTime) : "0";
+    console.log("... Start until response end time = " + t);
+  }
+}
 </script>
 </body>
 </html>
